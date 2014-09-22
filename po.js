@@ -681,7 +681,9 @@ define([
               var mf = new MessageFormat(globalConfig.locale);
               var compiledMessageFormat = ['returnee = {};'];
               
-              _(JSON.parse(file)).forEach(function(value, key){
+              var translations = sharedFuncs.convert(file);            
+              
+              _(translations).forEach(function(value, key){
                 var str = mf.precompile( mf.parse(value) );
                 var retString = 'returnee["' + key + '"] = ' + str + ';';
                 compiledMessageFormat.push(retString.replace(/\n/g, ' '));
