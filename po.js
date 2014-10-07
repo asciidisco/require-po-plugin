@@ -621,7 +621,7 @@ define([
             if (buildMap.hasOwnProperty(moduleName)) {
                 var content = text.jsEscape(buildMap[moduleName]);
                 write.asModule(pluginName + "!" + moduleName,
-                               "define(function () { " +
+                               "define(function () {" +
                                    content +
                                ";});");
             }
@@ -648,7 +648,7 @@ define([
                 textWrite.asModule = function (moduleName, contents) {
                     return write.asModule(moduleName, fileName, contents);
                 };
-
+                
                 text.write(pluginName, nonStripName, textWrite, config);
             }, config);
         }
@@ -677,9 +677,9 @@ define([
                 eval(String(loacalething));
                 MessageFormat.locale[globalConfig.locale] = localeThingy;
               }
-
+              
               var mf = new MessageFormat(globalConfig.locale);
-              var compiledMessageFormat = ['returnee = {};'];
+              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '') + ';'];
               
               var translations = sharedFuncs.convert(file);            
               
