@@ -723,9 +723,20 @@ define([
                           var returnee = {};
                           var translations = sharedFuncs.convert(xhr.responseText);
                           
+                          if (!require.i18n) {
+                            require.i18n = {};
+                          }               
+                          
+                          var fileName = url.split('/').pop().split('.')[0];
+                          if (!require.i18n[fileName]) {
+                            require.i18n[fileName] = {};
+                          }
+                          
                           _.each(translations, function (msg, key) {
                               returnee[key] = mf.compile(msg);
+                              require.i18n[fileName][key] = returnee[key];
                           });
+                          
                           callback(returnee);
                         });
                       } else {
