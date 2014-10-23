@@ -4,12 +4,14 @@
   java: false, location: false */
 
 define([
+  'module' 
   //>>excludeStart('excludePo', pragmas.excludePo)
-  'module', 'messageformat', 'underscore'
+  ,'messageformat', 'underscore'
   //>>excludeEnd('excludePo')
   ], function (
-  //>>excludeStart('excludePo', pragmas.excludePo)
-    module, MessageFormat, _
+    module 
+  //>>excludeStart('excludePo', pragmas.excludePo)  
+    ,MessageFormat, _
   //>>excludeEnd('excludePo')
   ) {
   //>>excludeStart('excludePo', pragmas.excludePo)
@@ -429,6 +431,7 @@ define([
     
     var globalConfig;
     var localeEmitter;
+    //>>excludeEnd('excludePo')
     var text, fs,
         progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
@@ -444,6 +447,7 @@ define([
         version: '0.1.0',
 
         strip: function (content) {
+          //>>excludeStart('excludePo', pragmas.excludePo)
             //Strips <?xml ...?> declarations so that external SVG and XML
             //documents can be added to a document without worry. Also, if the string
             //is an HTML document, only the part inside the body tag is returned.
@@ -456,9 +460,10 @@ define([
             } else {
                 content = "";
             }
+            //>>excludeEnd('excludePo')
             return content;
         },
-
+        //>>excludeStart('excludePo', pragmas.excludePo)
         jsEscape: function (content) {
             return content.replace(/(['\\])/g, '\\$1')
                 .replace(/[\f]/g, "\\f")
@@ -469,7 +474,7 @@ define([
                 .replace(/[\u2028]/g, "\\u2028")
                 .replace(/[\u2029]/g, "\\u2029");
         },
-
+        
         createXhr: masterConfig.createXhr || function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
             var xhr, i, progId;
@@ -491,7 +496,7 @@ define([
 
             return xhr;
         },
-
+        
         /**
          * Parses a resource name into its component parts. Resource names
          * look like: module/name.ext!strip, where the !strip part is
@@ -552,7 +557,7 @@ define([
                    (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
                    ((!uPort && !uHostName) || uPort === port);
         },
-
+        
         finishLoad: function (name, strip, content, onLoad) {
             content = strip ? text.strip(content) : content;
             if (masterConfig.isBuild) {
@@ -560,7 +565,7 @@ define([
             }
             onLoad(content);
         },
-
+        
         load: function (name, req, onLoad, config) {
             globalConfig = config;
             //Name has format: some.module.filext!strip
@@ -616,7 +621,7 @@ define([
                 });
             }
         },
-
+        
         write: function (pluginName, moduleName, write, config) {
             if (buildMap.hasOwnProperty(moduleName)) {
                 var content = text.jsEscape(buildMap[moduleName]);
@@ -652,6 +657,7 @@ define([
                 text.write(pluginName, nonStripName, textWrite, config);
             }, config);
         }
+    
     };
 
     if (masterConfig.env === 'node' || (!masterConfig.env &&
@@ -793,7 +799,7 @@ define([
             }
             callback(content);
         };
+    //>>excludeEnd('excludePo')
     }
     return text;
-    //>>excludeEnd('excludePo')
 });
