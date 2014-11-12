@@ -4,7 +4,7 @@
 "Po-Revision-Date: 2013-05-10 16:20-0800\n"
 "Last-Translator: Sebastian Golasch\n"
 "Language-Team: \n"
-"Language: de\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,22 +16,19 @@
 "X-Poedit-SearchPath-0: ..\n"
 
 msgid "Yes"
-msgstr "Ja"
+msgstr "Yes"
 
 msgid "No"
-msgstr "Nein"
-
-msgid "Please"
-msgstr "Bitte"
+msgstr "No"
 
 msgid "She has {count} apples"
 msgstr "Sie hat {count} Äpfel"
 
 msgid "There are {mails} mails in {folders} folders"
-msgstr "Es befinden sich {mails} Mails in {folders} Verzeichnissen"
+msgstr "There are {mails} mails in {folders} folders"
 
 msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
 msgstr "{items, plural, none{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}}"
 
 msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
-msgstr "{items, plural, none{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}} in {rooms, plural, one{einem Raum} other{{rooms} Räumen}}"
+msgstr "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"

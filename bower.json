@@ -1,6 +1,6 @@
 {
   "name": "require-po-plugin",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "authors": [
     "Sebastian Golasch <public@asciidisco.com>"
   ],
@@ -20,10 +20,9 @@
     "tests"
   ],
   "dependencies": {
-    "messageformat": "~0.2.1",
-    "underscore": "~1.7.0"
+    "messageformat": "0.2.1"
   },
   "devDependencies": {
-    "requirejs": "~2.1.15"
+    "requirejs": "2.1.15"
   }
 }

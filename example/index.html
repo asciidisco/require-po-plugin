@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html lang="en" data-mode="develop">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +8,53 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <p>Hello world! This is just a Boilerplate.</p>
-        <script src="../bower_components/requirejs/require.js" data-main="main.js"></script>
+        <h1>Hello world! This is just a Boilerplate.</h1>
+		
+		<!-- Translatable content -->
+		<p id="yes">Yes</p>
+		<p id="no">No</p>
+		<p id="apples">She has {count} apples</p>
+		<p id="mails">There are {mails} mails in {folders} folders</p>
+		<p id="items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}</p>
+		<p id="one-item"></p>
+		<p id="more-items"></p>
+		<p id="multi-items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}</p>	
+		
+		<script>(function(){
+		    // define mode develop/build
+		    var mode = document.getElementsByTagName('html')[0].getAttribute('data-mode');
+		    
+            // define language
+    		var language = localStorage.getItem('language') || 'de_DE';
+
+            // mapped languages
+            var supportedLanguages = {
+                'de'   : 'de_DE',
+                'de-DE': 'de_DE',
+                'de-AT': 'de_DE',
+                'de-CH': 'de_DE',
+                'de_DE': 'de_DE',
+                'de_AT': 'de_DE',
+                'de_CH': 'de_DE',
+                'en'   : 'en_EN',
+                'en_US': 'en_EN',
+                'en_GB': 'en_EN',
+                'en_EN': 'en_EN',
+                'en-US': 'en_EN',
+                'en-EN': 'en_EN',
+                'en-GB': 'en_EN'
+            };
+
+            window._langMap = supportedLanguages;
+            window._lang = supportedLanguages[language] || 'de_DE';
+            
+            // create requirejs script tag
+            var s = document.createElement('script');
+            s.type = "text/javascript";
+            s.src = mode === 'develop' ? '../bower_components/requirejs/require.js' : '../../bower_components/requirejs/require.js';
+            var languageKey = mode === 'develop' ? '' : ('_' + window._lang);
+            s.setAttribute('data-main', 'main' + languageKey);
+            document.head.appendChild(s);
+        })();</script>
     </body>
 </html>

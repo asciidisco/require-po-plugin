@@ -6,12 +6,12 @@
 define([
   'module' 
   //>>excludeStart('excludePo', pragmas.excludePo)
-  ,'messageformat', 'underscore'
+  ,'messageformat'
   //>>excludeEnd('excludePo')
   ], function (
     module 
   //>>excludeStart('excludePo', pragmas.excludePo)  
-    ,MessageFormat, _
+    ,MessageFormat
   //>>excludeEnd('excludePo')
   ) {
   //>>excludeStart('excludePo', pragmas.excludePo)
@@ -685,12 +685,12 @@ define([
               }
               
               var mf = new MessageFormat(globalConfig.locale);
-              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('k in p?p[k]:', 'k(o) in p?p[k(o)]:') + ';'];
+              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('(k=i18n.lc[l](d[k]-o),k in p?p[k]:p.other)', '(o = i18n.lc[l](d[k] - o), o(d[k]) in p ? p[o(d[k])] : p.other)') + ';'];
               
               var translations = sharedFuncs.convert(file);            
               
-              _(translations).forEach(function(value, key){
-                var str = mf.precompile( mf.parse(value) );
+              Object.keys(translations).forEach(function(key){
+                var str = mf.precompile( mf.parse(translations[key]) );
                 var retString = 'returnee["' + key + '"] = ' + str + ';';
                 compiledMessageFormat.push(retString.replace(/\n/g, ' '));
               });
@@ -738,8 +738,8 @@ define([
                             require.i18n[fileName] = {};
                           }
                           
-                          _.each(translations, function (msg, key) {
-                              returnee[key] = mf.compile(msg);
+													Object.keys(translations).forEach(function (key) {
+                              returnee[key] = mf.compile(translations[key]);
                               require.i18n[fileName][key] = returnee[key];
                           });
                           
@@ -750,7 +750,7 @@ define([
                           var returnee = {};
                           var translations = sharedFuncs.convert(xhr.responseText);
                           
-                          _.each(translations, function (msg, key) {
+                          Object.keys(translations).forEach(function (key) {
                               returnee[key] = mf.compile(msg);
                           });
                           callback(returnee);
@@ -759,45 +759,6 @@ define([
                 }
             };
             xhr.send(null);
-        };
-    } else if (masterConfig.env === 'rhino' || (!masterConfig.env &&
-            typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
-        //Why Java, why is this so awkward?
-        text.get = function (url, callback) {
-            var stringBuffer, line,
-                encoding = "utf-8",
-                file = new java.io.File(url),
-                lineSeparator = java.lang.System.getProperty("line.separator"),
-                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-                content = '';
-            try {
-                stringBuffer = new java.lang.StringBuffer();
-                line = input.readLine();
-
-                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
-                // http://www.unicode.org/faq/utf_bom.html
-
-                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
-                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-                if (line && line.length() && line.charAt(0) === 0xfeff) {
-                    // Eat the BOM, since we've already found the encoding on this file,
-                    // and we plan to concatenating this buffer with others; the BOM should
-                    // only appear at the top of a file.
-                    line = line.substring(1);
-                }
-
-                stringBuffer.append(line);
-
-                while ((line = input.readLine()) !== null) {
-                    stringBuffer.append(lineSeparator);
-                    stringBuffer.append(line);
-                }
-                //Make sure we return a JavaScript string and not a Java string.
-                content = String(stringBuffer.toString()); //String
-            } finally {
-                input.close();
-            }
-            callback(content);
         };
     //>>excludeEnd('excludePo')
     }

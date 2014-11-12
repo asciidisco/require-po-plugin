@@ -1,16 +1,7 @@
-//window._lang = 'de_DE';
-
 require.config({
     paths: {
-        underscore: '../bower_components/underscore/underscore',
-        messageformat: '../bower_components/messageformat/messageformat',
+	     	messageformat: '../bower_components/messageformat/messageformat',
         po: '../po',
-    },
-    shim: {
-        underscore: {
-            exports: '_',
-            deps: []
-        }
     },
     locale: function (root) {
       return root._lang || 'en_EN';
@@ -21,7 +12,15 @@ require.config({
 });
 
 require(['po!labels'], function (translations) {
-  Object.keys(translations).forEach(function (key) {
-    console.log(key, ':', translations[key]());
-  });
+  
+  // load translatable content
+  document.getElementById('yes').innerHTML = '"' + document.getElementById('yes').innerHTML + '" translated to: "' + translations[document.getElementById('yes').innerHTML]() + '"';
+  document.getElementById('no').innerHTML = '"' + document.getElementById('no').innerHTML + '" translated to: "' + translations[document.getElementById('no').innerHTML]() + '"';
+  document.getElementById('apples').innerHTML = '"' + document.getElementById('apples').innerHTML + '" translated to: "' + translations[document.getElementById('apples').innerHTML]({count: 5}) + '"';
+  document.getElementById('mails').innerHTML = '"' + document.getElementById('mails').innerHTML + '" translated to: "' + translations[document.getElementById('mails').innerHTML]({mails: 6, folders: 2}) + '"';
+  document.getElementById('one-item').innerHTML = '"' + document.getElementById('items').innerHTML + '" translated to: "' + translations[document.getElementById('items').innerHTML]({items: 1}) + '"';
+  document.getElementById('more-items').innerHTML = '"' + document.getElementById('items').innerHTML + '" translated to: "' + translations[document.getElementById('items').innerHTML]({items: 5}) + '"';  
+  document.getElementById('items').innerHTML = '"' + document.getElementById('items').innerHTML + '" translated to: "' + translations[document.getElementById('items').innerHTML]({items: 0}) + '"';
+  document.getElementById('multi-items').innerHTML = '"' + document.getElementById('multi-items').innerHTML + '" translated to: "' + translations[document.getElementById('multi-items').innerHTML]({items: 1, rooms: 2}) + '"';
+    
 });
