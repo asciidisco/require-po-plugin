@@ -685,7 +685,7 @@ define([
               }
               
               var mf = new MessageFormat(globalConfig.locale);
-              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '') + ';'];
+              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('k in p?p[k]:', 'k(o) in p?p[k(o)]:') + ';'];
               
               var translations = sharedFuncs.convert(file);            
               
