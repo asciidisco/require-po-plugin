@@ -4,13 +4,13 @@
   java: false, location: false */
 
 define([
-  'module' 
+  'module'
   //>>excludeStart('excludePo', pragmas.excludePo)
   ,'messageformat'
   //>>excludeEnd('excludePo')
   ], function (
-    module 
-  //>>excludeStart('excludePo', pragmas.excludePo)  
+    module
+  //>>excludeStart('excludePo', pragmas.excludePo)
     ,MessageFormat
   //>>excludeEnd('excludePo')
   ) {
@@ -25,22 +25,22 @@ define([
      * @return {Object} An object of key-value pairs
      */
     sharedFuncs.parseHeader = function (str){
-    	var lines = (str || "").split("\n"),
-    		headers = {};
+        var lines = (str || "").split("\n"),
+            headers = {};
 
-    	lines.forEach(function(line){
-    		var parts = line.trim().split(":"),
-    			key = (parts.shift() || "").trim().toLowerCase(),
-    			value = parts.join(":").trim();
-    		if(!key){
-    			return;
-    		}
-    		headers[key] = value;
-    	});
+        lines.forEach(function(line){
+            var parts = line.trim().split(":"),
+                key = (parts.shift() || "").trim().toLowerCase(),
+                value = parts.join(":").trim();
+            if(!key){
+                return;
+            }
+            headers[key] = value;
+        });
 
-    	return headers;
+        return headers;
     };
-    
+
     sharedFuncs.convert = function (po) {
       var parser = new Parser(po, 'utf-8');
       var translations = parser.parse();
@@ -63,10 +63,10 @@ define([
           });
         }
       });
-      
+
       return translationMap;
     };
-    
+
     /**
      * Creates a PO parser object. If PO object is a string,
      * UTF-8 will be used as the charset
@@ -426,9 +426,29 @@ define([
 
         return this._normalize(lex);
     };
-    
-    
-    
+
+    var localizeFile = function (config, name) {
+        var localizedFilename  = 'foo',
+            root;
+
+        try {
+          root = window;
+        } catch (e) {
+          root = config;
+        }
+
+        var locale = root.locale || root._lang,
+            _locale = locale,
+            _shortLocale = locale.split('_')[0];
+
+        if (typeof locale === 'function') {
+          _locale = locale(root);
+        }
+
+        localizedFilename = name.replace('{{locale}}', _locale);
+        return localizedFilename;
+    };
+
     var globalConfig;
     var localeEmitter;
     //>>excludeEnd('excludePo')
@@ -474,7 +494,7 @@ define([
                 .replace(/[\u2028]/g, "\\u2028")
                 .replace(/[\u2029]/g, "\\u2029");
         },
-        
+
         createXhr: masterConfig.createXhr || function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
             var xhr, i, progId;
@@ -496,7 +516,7 @@ define([
 
             return xhr;
         },
-        
+
         /**
          * Parses a resource name into its component parts. Resource names
          * look like: module/name.ext!strip, where the !strip part is
@@ -518,11 +538,11 @@ define([
                 strip = strip === "strip";
                 ext = ext.substring(0, index);
             }
-            
+
             if (ext === 'po.po') {
               ext = 'po';
             }
-            
+
             return {
                 moduleName: modName,
                 ext: ext,
@@ -557,7 +577,7 @@ define([
                    (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
                    ((!uPort && !uHostName) || uPort === port);
         },
-        
+
         finishLoad: function (name, strip, content, onLoad) {
             content = strip ? text.strip(content) : content;
             if (masterConfig.isBuild) {
@@ -565,7 +585,7 @@ define([
             }
             onLoad(content);
         },
-        
+
         load: function (name, req, onLoad, config) {
             globalConfig = config;
             //Name has format: some.module.filext!strip
@@ -581,7 +601,7 @@ define([
                 onLoad();
                 return;
             }
-            
+
             if (typeof config.locale === 'function' && !config.isBuild) {
               var root;
               try {
@@ -591,14 +611,19 @@ define([
               }
               config.locale = config.locale(root);
             }
-            
-            masterConfig.isBuild = config.isBuild;
 
-            var parsed = text.parseName(name),
-                nonStripName = config.po.i18nLocation + '/' + config.locale + '/' + parsed.moduleName + '.' + parsed.ext,
-                url = req.toUrl(nonStripName),
-                useXhr = (masterConfig.useXhr) ||
-                         text.useXhr;
+            masterConfig.isBuild = config.isBuild;
+            var parsed = text.parseName(name);
+
+            // use `i18nLocation` configuration as url default
+            var nonStripName = config.po.i18nLocation + '/' + config.locale + '/' + parsed.moduleName + '.' + parsed.ext;
+            // check if we need to modify the location of the file, this is the case if the locale placeholder has been set
+            if (parsed.moduleName.search('{{locale}}') !== -1) {
+                nonStripName = localizeFile(config, parsed.moduleName) + '.' + parsed.ext
+            }
+
+            var url = req.toUrl(nonStripName);
+            var useXhr = (masterConfig.useXhr) || text.useXhr;
 
             localeEmitter = req.toUrl(config.po.i18nLocation + '/' + '{{locale}}/locale.js');
             //Load the text. Use XHR if possible and in a browser.
@@ -621,7 +646,7 @@ define([
                 });
             }
         },
-        
+
         write: function (pluginName, moduleName, write, config) {
             if (buildMap.hasOwnProperty(moduleName)) {
                 var content = text.jsEscape(buildMap[moduleName]);
@@ -653,11 +678,11 @@ define([
                 textWrite.asModule = function (moduleName, contents) {
                     return write.asModule(moduleName, fileName, contents);
                 };
-                
+
                 text.write(pluginName, nonStripName, textWrite, config);
             }, config);
         }
-    
+
     };
 
     if (masterConfig.env === 'node' || (!masterConfig.env &&
@@ -683,12 +708,12 @@ define([
                 eval(String(loacalething));
                 MessageFormat.locale[globalConfig.locale] = localeThingy;
               }
-              
+
               var mf = new MessageFormat(globalConfig.locale);
               var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('(k=i18n.lc[l](d[k]-o),k in p?p[k]:p.other)', '(o = i18n.lc[l](d[k] - o), o(d[k]) in p ? p[o(d[k])] : p.other)') + ';'];
-              
-              var translations = sharedFuncs.convert(file);            
-              
+
+              var translations = sharedFuncs.convert(file);
+
               Object.keys(translations).forEach(function(key){
                 var str = mf.precompile( mf.parse(translations[key]) );
                 var retString = 'returnee["' + key + '"] = ' + str + ';';
@@ -699,8 +724,7 @@ define([
               callback(compiledMessageFormat.join(' '));
 
       };
-    } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
-            text.createXhr())) {
+    } else if (masterConfig.env === 'xhr' || (!masterConfig.env && text.createXhr())) {
         text.get = function (url, callback, errback) {
             var xhr = text.createXhr();
             xhr.open('GET', url, true);
@@ -724,32 +748,32 @@ define([
                     } else {
                       if(!MessageFormat.locale[globalConfig.locale]) {
                         require([localeEmitter.replace('{{locale}}', globalConfig.locale)], function (locale) {
-                          MessageFormat.locale[globalConfig.locale] = locale;
-                          var mf = new MessageFormat(globalConfig.locale);
-                          var returnee = {};
-                          var translations = sharedFuncs.convert(xhr.responseText);
-                          
-                          if (!require.i18n) {
-                            require.i18n = {};
-                          }               
-                          
-                          var fileName = url.split('/').pop().split('.')[0];
-                          if (!require.i18n[fileName]) {
-                            require.i18n[fileName] = {};
-                          }
-                          
-													Object.keys(translations).forEach(function (key) {
-                              returnee[key] = mf.compile(translations[key]);
-                              require.i18n[fileName][key] = returnee[key];
-                          });
-                          
-                          callback(returnee);
+                            MessageFormat.locale[globalConfig.locale] = locale;
+                            var mf = new MessageFormat(globalConfig.locale);
+                            var returnee = {};
+                            var translations = sharedFuncs.convert(xhr.responseText);
+
+                            if (!require.i18n) {
+                                require.i18n = {};
+                            }
+
+                            var fileName = url.split('/').pop().split('.')[0];
+                            if (!require.i18n[fileName]) {
+                                require.i18n[fileName] = {};
+                            }
+
+                            Object.keys(translations).forEach(function (key) {
+                                returnee[key] = mf.compile(translations[key]);
+                                require.i18n[fileName][key] = returnee[key];
+                            });
+
+                            callback(returnee);
                         });
                       } else {
                           var mf = new MessageFormat(globalConfig.locale);
                           var returnee = {};
                           var translations = sharedFuncs.convert(xhr.responseText);
-                          
+
                           Object.keys(translations).forEach(function (key) {
                               returnee[key] = mf.compile(msg);
                           });
