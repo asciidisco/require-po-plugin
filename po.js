@@ -449,6 +449,36 @@ define([
         return localizedFilename;
     };
 
+    var parseOutLocale = function (text, options) {
+        options = options || {};
+        var localeFunc;
+        var metaMarker = 'Plural-Forms:';
+        var metaMarkerLength = metaMarker.length;
+        var pos = text.search(metaMarker);
+        var startFromText = text.substr(pos + metaMarkerLength);
+        var inlineMarker = 'plurals=';
+        var inlineMarkerLength = inlineMarker.length;
+        var inlinePos = inlineMarker.search(inlineMarker);
+        var startFromInlinedText = startFromText.substr(inlinePos + inlineMarkerLength);
+        var nextSemicolon = startFromInlinedText.indexOf(';');
+        startFromInlinedText = startFromInlinedText.substr(nextSemicolon + 1);
+        nextSemicolon = startFromInlinedText.search(';');
+        startFromInlinedText = startFromInlinedText.substr(0, nextSemicolon);
+        startFromInlinedText = startFromInlinedText.replace('plural=', '');
+        startFromInlinedText = startFromInlinedText.replace(/'/g, '"');
+
+        if (options.useDefine) {
+            localeFunc = 'define(function defineInternationalization_' + globalConfig.locale + '_Locale () {\n' +
+                         '  return function (n) { return ' + startFromInlinedText + '; }\n' +
+                         '});';
+        } else {
+            localeFunc = '(function defineInternationalization_' + globalConfig.locale + '_Locale () {\n' +
+                         '  return function (n) { return ' + startFromInlinedText + '; }\n' +
+                         '}());';
+        };
+        return localeFunc;
+    };
+
     var globalConfig;
     var localeEmitter;
     //>>excludeEnd('excludePo')
@@ -685,10 +715,7 @@ define([
 
     };
 
-    if (masterConfig.env === 'node' || (!masterConfig.env &&
-            typeof process !== "undefined" &&
-            process.versions &&
-            !!process.versions.node)) {
+    if (masterConfig.env === 'node' || (!masterConfig.env && typeof process !== "undefined" && process.versions && !!process.versions.node)) {
         //Using special require.nodeRequire, something added by r.js.
         fs = require.nodeRequire('fs');
           text.get = function (url, callback) {
@@ -699,8 +726,20 @@ define([
               }
 
               // okay, this is so evil...
-              if(!MessageFormat.locale[globalConfig.locale]) {
+              if(globalConfig.po.usePluralFromPo !== true && !MessageFormat.locale[globalConfig.locale]) {
                 var loacalething = fs.readFileSync(localeEmitter.replace('{{locale}}', globalConfig.locale));
+                var localeThingy = null;
+                var define = function (fn) {
+                  localeThingy = fn;
+                };
+                eval(String(loacalething));
+                MessageFormat.locale[globalConfig.locale] = localeThingy;
+              }
+
+              // check for inlined localization plural forms
+              var localeFunc;
+              if (globalConfig.po.usePluralFromPo === true && file.search('Plural-Forms:') !== -1) {
+                var loacalething = parseOutLocale(file, {useDefine: true});
                 var localeThingy = null;
                 var define = function (fn) {
                   localeThingy = fn;
@@ -746,7 +785,14 @@ define([
                         err.xhr = xhr;
                         errback(err);
                     } else {
-                      if(!MessageFormat.locale[globalConfig.locale]) {
+
+                      // check for inlined localization plural forms
+                      var localeFunc;
+                      if (globalConfig.po.usePluralFromPo === true && xhr.responseText.search('Plural-Forms:') !== -1) {
+                        localeFunc = parseOutLocale(xhr.responseText);
+                      }
+
+                      if (globalConfig.po.usePluralFromPo !== true) {
                         require([localeEmitter.replace('{{locale}}', globalConfig.locale)], function (locale) {
                             MessageFormat.locale[globalConfig.locale] = locale;
                             var mf = new MessageFormat(globalConfig.locale);
@@ -770,14 +816,27 @@ define([
                             callback(returnee);
                         });
                       } else {
-                          var mf = new MessageFormat(globalConfig.locale);
-                          var returnee = {};
-                          var translations = sharedFuncs.convert(xhr.responseText);
+                        var locale = eval(localeFunc);
+                        MessageFormat.locale[globalConfig.locale] = locale;
+                        var mf = new MessageFormat(globalConfig.locale);
+                        var returnee = {};
+                        var translations = sharedFuncs.convert(xhr.responseText);
 
-                          Object.keys(translations).forEach(function (key) {
-                              returnee[key] = mf.compile(msg);
-                          });
-                          callback(returnee);
+                        if (!require.i18n) {
+                            require.i18n = {};
+                        }
+
+                        var fileName = url.split('/').pop().split('.')[0];
+                        if (!require.i18n[fileName]) {
+                            require.i18n[fileName] = {};
+                        }
+
+                        Object.keys(translations).forEach(function (key) {
+                            returnee[key] = mf.compile(translations[key]);
+                            require.i18n[fileName][key] = returnee[key];
+                        });
+
+                       callback(returnee);
                       }
                     }
                 }
