@@ -557,7 +557,7 @@ define([
          */
         parseName: function (name) {
             name += '.po';
-            var strip = false, index = name.indexOf("."),
+            var strip = false, index = name.lastIndexOf("."),
                 modName = name.substring(0, index),
                 ext = name.substring(index + 1, name.length);
 
@@ -644,12 +644,7 @@ define([
             }
 
             masterConfig.isBuild = config.isBuild;
-            var __parsed = text.parseName(name);
-            var parsed = {moduleName: name, ext: 'po', strip: false};
-
-            if (__parsed.moduleName.search('/') !== -1 && parsed.moduleName !== __parsed.moduleName) {
-                parsed.moduleName = parsed.moduleName.replace(__parsed.moduleName, '');
-            }
+            var parsed = text.parseName(name);
 
             // use `i18nLocation` configuration as url default
             var nonStripName = config.po.i18nLocation + '/' + config.locale + '/' + parsed.moduleName + '.' + parsed.ext;
@@ -657,7 +652,7 @@ define([
             if (parsed.moduleName.search('{{locale}}') !== -1) {
                 nonStripName = localizeFile(config, parsed.moduleName) + '.' + parsed.ext;
             }
-         
+
             var url = req.toUrl(nonStripName);
             var useXhr = (masterConfig.useXhr) || text.useXhr;
 
