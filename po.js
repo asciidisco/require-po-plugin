@@ -613,6 +613,7 @@ define([
             if (masterConfig.isBuild) {
                 buildMap[name] = content;
             }
+
             onLoad(content);
         },
 
@@ -643,15 +644,20 @@ define([
             }
 
             masterConfig.isBuild = config.isBuild;
-            var parsed = text.parseName(name);
+            var __parsed = text.parseName(name);
+            var parsed = {moduleName: name, ext: 'po', strip: false};
+
+            if (__parsed.moduleName.search('/') !== -1 && parsed.moduleName !== __parsed.moduleName) {
+                parsed.moduleName = parsed.moduleName.replace(__parsed.moduleName, '');
+            }
 
             // use `i18nLocation` configuration as url default
             var nonStripName = config.po.i18nLocation + '/' + config.locale + '/' + parsed.moduleName + '.' + parsed.ext;
             // check if we need to modify the location of the file, this is the case if the locale placeholder has been set
             if (parsed.moduleName.search('{{locale}}') !== -1) {
-                nonStripName = localizeFile(config, parsed.moduleName) + '.' + parsed.ext
+                nonStripName = localizeFile(config, parsed.moduleName) + '.' + parsed.ext;
             }
-
+         
             var url = req.toUrl(nonStripName);
             var useXhr = (masterConfig.useXhr) || text.useXhr;
 

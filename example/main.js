@@ -11,7 +11,7 @@ require.config({
     }
 });
 
-require(['po!labels'], function (translations) {
+require(['po!labels', 'po!./relatives/{{locale}}/rl'], function (translations, relativeTranslations) {
   
   // load translatable content
   document.getElementById('yes').innerHTML = '"' + document.getElementById('yes').innerHTML + '" translated to: "' + translations[document.getElementById('yes').innerHTML]() + '"';
@@ -23,4 +23,6 @@ require(['po!labels'], function (translations) {
   document.getElementById('items').innerHTML = '"' + document.getElementById('items').innerHTML + '" translated to: "' + translations[document.getElementById('items').innerHTML]({items: 0}) + '"';
   document.getElementById('multi-items').innerHTML = '"' + document.getElementById('multi-items').innerHTML + '" translated to: "' + translations[document.getElementById('multi-items').innerHTML]({items: 1, rooms: 2}) + '"';
     
+
+  document.getElementById('hello').innerHTML = '"' + document.getElementById('hello').innerHTML + '" translated to: "' + relativeTranslations[document.getElementById('hello').innerHTML]() + '"';
 });
