@@ -45,7 +45,8 @@ define([
       var parser = new Parser(po, 'utf-8');
       var translations = parser.parse();
       var translationMap = {};
-      Object.keys(translations.translations['']).forEach(function (key) {
+      var _keys = typeof translations.translations[''] === 'object' ? Object.keys(translations.translations['']) : [];
+      _keys.forEach(function (key) {
         var msgstr = null;
         if (key === '') {
           return;
