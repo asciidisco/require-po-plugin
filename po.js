@@ -45,8 +45,7 @@ define([
       var parser = new Parser(po, 'utf-8');
       var translations = parser.parse();
       var translationMap = {};
-      var _keys = typeof translations.translations[''] === 'object' ? Object.keys(translations.translations['']) : [];
-      _keys.forEach(function (key) {
+      Object.keys(translations.translations['']).forEach(function (key) {
         var msgstr = null;
         if (key === '') {
           return;
@@ -614,7 +613,6 @@ define([
             if (masterConfig.isBuild) {
                 buildMap[name] = content;
             }
-
             onLoad(content);
         },
 
@@ -681,7 +679,7 @@ define([
 
         write: function (pluginName, moduleName, write, config) {
             if (buildMap.hasOwnProperty(moduleName)) {
-                var content = text.jsEscape(buildMap[moduleName]);
+                var content = buildMap[moduleName];
                 write.asModule(pluginName + "!" + moduleName,
                                "define(function () {" +
                                    content +
@@ -756,8 +754,9 @@ define([
               var translations = sharedFuncs.convert(file);
 
               Object.keys(translations).forEach(function(key){
+                // .replace(/"/g, '\\"')
                 var str = mf.precompile( mf.parse(translations[key]) );
-                var retString = 'returnee["' + key + '"] = ' + str + ';';
+                var retString = 'returnee["' + key + '"] = ' + str.replace(/\\"/g, '\\"') + ';';
                 compiledMessageFormat.push(retString.replace(/\n/g, ' '));
               });
 
