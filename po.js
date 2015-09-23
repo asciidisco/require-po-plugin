@@ -751,11 +751,21 @@ define([
               var mf = new MessageFormat(globalConfig.locale);
               var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('(k=i18n.lc[l](d[k]-o),k in p?p[k]:p.other)', '(o = i18n.lc[l](d[k] - o), o(d[k]) in p ? p[o(d[k])] : p.other)') + ';'];
 
+              compiledMessageFormat.push(" " + mf.globalName + ".__masterGlobalVars = function (d) {"
+                + "  var globs = require.s.contexts._.config.po.globals || {};"
+                + "  d = d === Object(d) ? d : {};"
+                + "  Object.keys(globs).forEach(function (name) {"
+                + "    if (!d[name]) d[name] = globs[name];"
+                + "  });"
+                + "  return d;"
+                + "};"
+              );
+
               var translations = sharedFuncs.convert(file);
 
               Object.keys(translations).forEach(function(key){
-                // .replace(/"/g, '\\"')
-                var str = mf.precompile( mf.parse(translations[key]) );
+                var ostr = mf.precompile( mf.parse(translations[key]) );
+                var str = "function (d) { return " + ostr + "(" + mf.globalName + ".__masterGlobalVars(d)); };";
                 var retString = 'returnee["' + key + '"] = ' + str.replace(/\\"/g, '\\"') + ';';
                 compiledMessageFormat.push(retString.replace(/\n/g, ' '));
               });
@@ -810,8 +820,15 @@ define([
                             }
 
                             Object.keys(translations).forEach(function (key) {
-                                returnee[key] = mf.compile(translations[key]);
-                                require.i18n[fileName][key] = returnee[key];
+                                var tmp = mf.compile(translations[key]);
+                                require.i18n[fileName][key] = returnee[key] = function (d) {
+                                  var globs = globalConfig.po.globals || {};
+                                  d = typeof d === 'object' ? d : {};
+                                  Object.keys(globs).forEach(function (name) {
+                                    if (!d[name]) d[name] = globs[name];
+                                  });
+                                  return tmp(d);
+                                };
                             });
 
                             callback(returnee);
@@ -833,8 +850,15 @@ define([
                         }
 
                         Object.keys(translations).forEach(function (key) {
-                            returnee[key] = mf.compile(translations[key]);
-                            require.i18n[fileName][key] = returnee[key];
+                            var tmp = mf.compile(translations[key]);
+                            require.i18n[fileName][key] = returnee[key] = function (d) {
+                              var globs = globalConfig.po.globals || {};
+                              d = typeof d === 'object' ? d : {};
+                              Object.keys(globs).forEach(function (name) {
+                                if (!d[name]) d[name] = globs[name];
+                              });
+                              return tmp(d);
+                            };
                         });
 
                        callback(returnee);
