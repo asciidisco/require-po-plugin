@@ -726,14 +726,13 @@ define([
               }
 
               // okay, this is so evil...
-              if(globalConfig.po.usePluralFromPo !== true && !MessageFormat.locale[globalConfig.locale]) {
+              if(globalConfig.po.usePluralFromPo !== true) {
                 var loacalething = fs.readFileSync(localeEmitter.replace('{{locale}}', globalConfig.locale));
                 var localeThingy = null;
                 var define = function (fn) {
                   localeThingy = fn;
                 };
                 eval(String(loacalething));
-                MessageFormat.locale[globalConfig.locale] = localeThingy;
               }
 
               // check for inlined localization plural forms
@@ -745,13 +744,12 @@ define([
                   localeThingy = fn;
                 };
                 eval(String(loacalething));
-                MessageFormat.locale[globalConfig.locale] = localeThingy;
               }
 
-              var mf = new MessageFormat(globalConfig.locale);
-              var compiledMessageFormat = ['returnee = {};' + 'var ' + mf.globalName + ' = ' + mf.functions().replace(/\r?\n?\t/g, '').replace(/\r?\n/g, '').replace('(k=i18n.lc[l](d[k]-o),k in p?p[k]:p.other)', '(o = i18n.lc[l](d[k] - o), o(d[k]) in p ? p[o(d[k])] : p.other)') + ';'];
+              var mf = new MessageFormat(globalConfig.locale, localeThingy);
 
-              compiledMessageFormat.push(" " + mf.globalName + ".__masterGlobalVars = function (d) {"
+              var compiledMessageFormat = ['returnee = {};' + 'var ' +mf.runtime.pluralFuncs[globalConfig.locale].name + ' = ' + mf.runtime.pluralFuncs[globalConfig.locale].toString() + ';'];
+              compiledMessageFormat.push(" " + mf.runtime.pluralFuncs[globalConfig.locale].name + ".__masterGlobalVars = function (d) {"
                 + "  var globs = require.s.contexts._.config.po.globals || {};"
                 + "  d = d === Object(d) ? d : {};"
                 + "  Object.keys(globs).forEach(function (name) {"
@@ -763,16 +761,19 @@ define([
 
               var translations = sharedFuncs.convert(file);
 
+              var funcs = mf.compile(translations).toString();
+              var start = funcs.indexOf('function anonymous() {') + 'function anonymous() {'.length;
+              var end = funcs.indexOf('return {');
+              compiledMessageFormat.push(funcs.substring(start, end));
               Object.keys(translations).forEach(function(key){
-                var ostr = mf.precompile( mf.parse(translations[key]) );
-                var str = "function (d) { return " + ostr + "(" + mf.globalName + ".__masterGlobalVars(d)); };";
+                var ostr = mf.compile(translations[key]);
+                var str = "function (d) { return " + ostr + "(" + mf.runtime.pluralFuncs[globalConfig.locale].name + ".__masterGlobalVars(d)); };";
                 var retString = 'returnee["' + key + '"] = ' + str.replace(/\\"/g, '\\"') + ';';
                 compiledMessageFormat.push(retString.replace(/\n/g, ' '));
               });
 
               compiledMessageFormat.push('return returnee');
               callback(compiledMessageFormat.join(' '));
-
       };
     } else if (masterConfig.env === 'xhr' || (!masterConfig.env && text.createXhr())) {
         text.get = function (url, callback, errback) {
@@ -805,6 +806,7 @@ define([
 
                       if (globalConfig.po.usePluralFromPo !== true) {
                         require([localeEmitter.replace('{{locale}}', globalConfig.locale)], function (locale) {
+                            if (!MessageFormat.locale) MessageFormat.locale = {};
                             MessageFormat.locale[globalConfig.locale] = locale;
                             var mf = new MessageFormat(globalConfig.locale);
                             var returnee = {};
@@ -835,6 +837,7 @@ define([
                         });
                       } else {
                         var locale = eval(localeFunc);
+                        if (!MessageFormat.locale) MessageFormat.locale = {};
                         MessageFormat.locale[globalConfig.locale] = locale;
                         var mf = new MessageFormat(globalConfig.locale);
                         var returnee = {};
