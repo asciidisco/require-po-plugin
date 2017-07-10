@@ -466,6 +466,7 @@ define([
         startFromInlinedText = startFromInlinedText.substr(0, nextSemicolon);
         startFromInlinedText = startFromInlinedText.replace('plural=', '');
         startFromInlinedText = startFromInlinedText.replace(/'/g, '"');
+        startFromInlinedText = startFromInlinedText.replace(/"\n"/g, ' ');
 
         if (options.useDefine) {
             localeFunc = 'define(function defineInternationalization_' + globalConfig.locale + '_Locale () {\n' +
