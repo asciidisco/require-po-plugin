@@ -9,7 +9,7 @@
     </head>
     <body>
         <h1>Hello world! This is just a Boilerplate.</h1>
-		
+
 		<!-- Translatable content -->
 		<p id="yes">Yes</p>
 		<p id="no">No</p>
@@ -18,13 +18,13 @@
 		<p id="items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}</p>
 		<p id="one-item"></p>
 		<p id="more-items"></p>
-		<p id="multi-items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}</p>	
+		<p id="multi-items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}</p>
 		<hr/>
-        <p id="hello">Hello</p> 
+        <p id="hello">Hello</p>
 		<script>(function(){
 		    // define mode develop/build
 		    var mode = document.getElementsByTagName('html')[0].getAttribute('data-mode');
-		    
+
             // define language
     		var language = localStorage.getItem('language') || 'de_DE';
 
@@ -37,18 +37,18 @@
                 'de_DE': 'de_DE',
                 'de_AT': 'de_DE',
                 'de_CH': 'de_DE',
-                'en'   : 'en_EN',
-                'en_US': 'en_EN',
-                'en_GB': 'en_EN',
-                'en_EN': 'en_EN',
-                'en-US': 'en_EN',
-                'en-EN': 'en_EN',
-                'en-GB': 'en_EN'
+                'en'   : 'en_GB',
+                'en_US': 'en_GB',
+                'en_GB': 'en_GB',
+                'en_EN': 'en_GB',
+                'en-US': 'en_GB',
+                'en-EN': 'en_GB',
+                'en-GB': 'en_GB'
             };
 
             window._langMap = supportedLanguages;
             window._lang = supportedLanguages[language] || 'de_DE';
-            
+
             // create requirejs script tag
             var s = document.createElement('script');
             s.type = "text/javascript";
