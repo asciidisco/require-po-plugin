@@ -15,10 +15,10 @@
 		<p id="no">No</p>
 		<p id="apples">She has {count} apples</p>
 		<p id="mails">There are {mails} mails in {folders} folders</p>
-		<p id="items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}</p>
+		<p id="items">{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}}</p>
 		<p id="one-item"></p>
 		<p id="more-items"></p>
-		<p id="multi-items">{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}</p>
+		<p id="multi-items">{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}</p>
 		<hr/>
         <p id="hello">Hello</p>
 		<script>(function(){

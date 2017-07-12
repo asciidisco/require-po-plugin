@@ -11,7 +11,6 @@
 "X-Poedit-KeywordsList: trans1ate\n"
 "X-Poedit-Basepath: .\n"
 "X-Generator: Poedit 1.6.9\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "PO-Revision-Date: \n"
 "X-Poedit-SearchPath-0: ..\n"
 
@@ -27,8 +26,8 @@ msgstr "Sie hat {count} Äpfel"
 msgid "There are {mails} mails in {folders} folders"
 msgstr "There are {mails} mails in {folders} folders"
 
-msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
-msgstr "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
+msgid "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}}"
+msgstr "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}}"
 
-msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
-msgstr "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
+msgid "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
+msgstr "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
