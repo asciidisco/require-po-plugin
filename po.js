@@ -717,161 +717,141 @@ define([
     };
 
     if (masterConfig.env === 'node' || (!masterConfig.env && typeof process !== "undefined" && process.versions && !!process.versions.node)) {
-        //Using special require.nodeRequire, something added by r.js.
-        fs = require.nodeRequire('fs');
-          text.get = function (url, callback) {
-              var file = fs.readFileSync(url, 'utf8');
-              //Remove BOM (Byte Mark Order) from utf8 files if it is there.
-              if (file.indexOf('\uFEFF') === 0) {
-                  file = file.substring(1);
-              }
+      // Using special require.nodeRequire, something added by r.js.
+      fs = require.nodeRequire('fs');
+      text.get = function (url, callback) {
+        var file = fs.readFileSync(url, 'utf8');
+        // Remove BOM (Byte Mark Order) from utf8 files if it is there.
+        if (file.indexOf('\uFEFF') === 0) {
+          file = file.substring(1);
+        }
 
-              // okay, this is so evil...
-              if(globalConfig.po.usePluralFromPo !== true) {
-                var loacalething = fs.readFileSync(localeEmitter.replace('{{locale}}', globalConfig.locale));
-                var localeThingy = null;
-                var define = function (fn) {
-                  localeThingy = fn;
-                };
-                eval(String(loacalething));
-              }
+        var mf;
 
-              // check for inlined localization plural forms
-              var localeFunc;
-              if (globalConfig.po.usePluralFromPo === true && file.search('Plural-Forms:') !== -1) {
-                var loacalething = parseOutLocale(file, {useDefine: true});
-                var localeThingy = null;
-                var define = function (fn) {
-                  localeThingy = fn;
-                };
-                eval(String(loacalething));
-              }
+        if (globalConfig.po.useMessageformatPlurals === true) {
+          mf = new MessageFormat(globalConfig.locale);
+        } else {
+          var localeThingy = null;
+          var define = function (fn) {
+            localeThingy = fn;
+          };
 
-              var mf = new MessageFormat(globalConfig.locale, localeThingy);
+          // okay, this is so evil...
+          if (globalConfig.po.usePluralFromPo !== true) {
+            var loacalething = fs.readFileSync(localeEmitter.replace('{{locale}}', globalConfig.locale));
+            eval(String(loacalething));
+          } else if (file.search('Plural-Forms:') !== -1) {
+            // check for inlined localization plural forms
+            var loacalething = parseOutLocale(file, {useDefine: true});
+            eval(String(loacalething));
+          }
 
-              var compiledMessageFormat = ['returnee = {};' + 'var ' +mf.runtime.pluralFuncs[globalConfig.locale].name + ' = ' + mf.runtime.pluralFuncs[globalConfig.locale].toString() + ';'];
-              compiledMessageFormat.push(" " + mf.runtime.pluralFuncs[globalConfig.locale].name + ".__masterGlobalVars = function (d) {"
-                + "  var globs = require.s.contexts._.config.po.globals || {};"
-                + "  d = d === Object(d) ? d : {};"
-                + "  Object.keys(globs).forEach(function (name) {"
-                + "    if (!d[name]) d[name] = globs[name];"
-                + "  });"
-                + "  return d;"
-                + "};"
-              );
+          mf = new MessageFormat(globalConfig.locale, localeThingy);
+        }
 
-              var translations = sharedFuncs.convert(file);
+        var pluralFuncName = mf.runtime.pluralFuncs[globalConfig.locale].name || ('_defaultPluralFunc_' + globalConfig.locale);
+        var compiledMessageFormat = ['returnee = {};' + 'var ' + pluralFuncName + ' = ' + mf.runtime.pluralFuncs[globalConfig.locale].toString() + ';'];
+        compiledMessageFormat.push(" " + pluralFuncName + ".__masterGlobalVars = function (d) {"
+          + "  var globs = require.s.contexts._.config.po.globals || {};"
+          + "  d = d === Object(d) ? d : {};"
+          + "  Object.keys(globs).forEach(function (name) {"
+          + "    if (!d[name]) d[name] = globs[name];"
+          + "  });"
+          + "  return d;"
+          + "};"
+        );
 
-              var funcs = mf.compile(translations).toString();
-              var start = funcs.indexOf('function anonymous() {') + 'function anonymous() {'.length;
-              var end = funcs.indexOf('return {');
-              compiledMessageFormat.push(funcs.substring(start, end));
-              Object.keys(translations).forEach(function(key){
-                var ostr = mf.compile(translations[key]);
-                var str = "function (d) { return " + ostr + "(" + mf.runtime.pluralFuncs[globalConfig.locale].name + ".__masterGlobalVars(d)); };";
-                var retString = 'returnee["' + key + '"] = ' + str.replace(/\\"/g, '\\"') + ';';
-                compiledMessageFormat.push(retString.replace(/\n/g, ' '));
-              });
+        var translations = sharedFuncs.convert(file);
 
-              compiledMessageFormat.push('return returnee');
-              callback(compiledMessageFormat.join(' '));
+        var funcs = mf.compile(translations).toString();
+        var start = funcs.indexOf('function anonymous() {') + 'function anonymous() {'.length;
+        var end = funcs.indexOf('return {');
+        compiledMessageFormat.push(funcs.substring(start, end));
+        Object.keys(translations).forEach(function(key){
+          var ostr = mf.compile(translations[key]);
+          var str = "function (d) { return " + ostr + "(" + pluralFuncName + ".__masterGlobalVars(d)); };";
+          var retString = 'returnee["' + key + '"] = ' + str.replace(/\\"/g, '\\"') + ';';
+          compiledMessageFormat.push(retString.replace(/\n/g, ' '));
+        });
+
+        compiledMessageFormat.push('return returnee');
+        callback(compiledMessageFormat.join(' '));
       };
     } else if (masterConfig.env === 'xhr' || (!masterConfig.env && text.createXhr())) {
-        text.get = function (url, callback, errback) {
-            var xhr = text.createXhr();
-            xhr.open('GET', url, true);
+      text.get = function (url, callback, errback) {
+        var xhr = text.createXhr();
+        xhr.open('GET', url, true);
 
-            //Allow overrides specified in config
-            if (masterConfig.onXhr) {
-                masterConfig.onXhr(xhr, url);
-            }
+        // Allow overrides specified in config
+        if (masterConfig.onXhr) {
+          masterConfig.onXhr(xhr, url);
+        }
 
-            xhr.onreadystatechange = function (evt) {
-                var status, err;
-                //Do not explicitly handle errors, those should be
-                //visible via console output in the browser.
-                if (xhr.readyState === 4) {
-                    status = xhr.status;
-                    if (status > 399 && status < 600) {
-                        //An http 4xx or 5xx error. Signal an error.
-                        err = new Error(url + ' HTTP status: ' + status);
-                        err.xhr = xhr;
-                        errback(err);
-                    } else {
+        xhr.onreadystatechange = function (evt) {
+          var status, err;
+          // Do not explicitly handle errors, those should be
+          // visible via console output in the browser.
+          if (xhr.readyState === 4) {
+            status = xhr.status;
+            if (status > 399 && status < 600) {
+              // An http 4xx or 5xx error. Signal an error.
+              err = new Error(url + ' HTTP status: ' + status);
+              err.xhr = xhr;
+              errback(err);
+            } else {
+              var createMessageFormat = function(locale) {
+                if (!MessageFormat.locale) MessageFormat.locale = {};
+                MessageFormat.locale[globalConfig.locale] = locale;
 
-                      // check for inlined localization plural forms
-                      var localeFunc;
-                      if (globalConfig.po.usePluralFromPo === true && xhr.responseText.search('Plural-Forms:') !== -1) {
-                        localeFunc = parseOutLocale(xhr.responseText);
-                      }
+                var mf = new MessageFormat(globalConfig.locale);
+                var returnee = {};
+                var translations = sharedFuncs.convert(xhr.responseText);
 
-                      if (globalConfig.po.usePluralFromPo !== true) {
-                        require([localeEmitter.replace('{{locale}}', globalConfig.locale)], function (locale) {
-                            if (!MessageFormat.locale) MessageFormat.locale = {};
-                            MessageFormat.locale[globalConfig.locale] = locale;
-                            var mf = new MessageFormat(globalConfig.locale);
-                            var returnee = {};
-                            var translations = sharedFuncs.convert(xhr.responseText);
-
-                            if (!require.i18n) {
-                                require.i18n = {};
-                            }
-
-                            var fileName = url.split('/').pop().split('.')[0];
-                            if (!require.i18n[fileName]) {
-                                require.i18n[fileName] = {};
-                            }
-
-                            Object.keys(translations).forEach(function (key) {
-                                var tmp = mf.compile(translations[key]);
-                                require.i18n[fileName][key] = returnee[key] = function (d) {
-                                  var globs = globalConfig.po.globals || {};
-                                  d = typeof d === 'object' ? d : {};
-                                  Object.keys(globs).forEach(function (name) {
-                                    if (!d[name]) d[name] = globs[name];
-                                  });
-                                  return tmp(d);
-                                };
-                            });
-
-                            callback(returnee);
-                        });
-                      } else {
-                        var locale = eval(localeFunc);
-                        if (!MessageFormat.locale) MessageFormat.locale = {};
-                        MessageFormat.locale[globalConfig.locale] = locale;
-                        var mf = new MessageFormat(globalConfig.locale);
-                        var returnee = {};
-                        var translations = sharedFuncs.convert(xhr.responseText);
-
-                        if (!require.i18n) {
-                            require.i18n = {};
-                        }
-
-                        var fileName = url.split('/').pop().split('.')[0];
-                        if (!require.i18n[fileName]) {
-                            require.i18n[fileName] = {};
-                        }
-
-                        Object.keys(translations).forEach(function (key) {
-                            var tmp = mf.compile(translations[key]);
-                            require.i18n[fileName][key] = returnee[key] = function (d) {
-                              var globs = globalConfig.po.globals || {};
-                              d = typeof d === 'object' ? d : {};
-                              Object.keys(globs).forEach(function (name) {
-                                if (!d[name]) d[name] = globs[name];
-                              });
-                              return tmp(d);
-                            };
-                        });
-
-                       callback(returnee);
-                      }
-                    }
+                if (!require.i18n) {
+                    require.i18n = {};
                 }
-            };
-            xhr.send(null);
+
+                var fileName = url.split('/').pop().split('.')[0];
+                if (!require.i18n[fileName]) {
+                    require.i18n[fileName] = {};
+                }
+
+                Object.keys(translations).forEach(function (key) {
+                    var tmp = mf.compile(translations[key]);
+                    require.i18n[fileName][key] = returnee[key] = function (d) {
+                      var globs = globalConfig.po.globals || {};
+                      d = typeof d === 'object' ? d : {};
+                      Object.keys(globs).forEach(function (name) {
+                        if (!d[name]) d[name] = globs[name];
+                      });
+                      return tmp(d);
+                    };
+                });
+
+                callback(returnee);
+              };
+
+              if (globalConfig.po.useMessageformatPlurals === true) {
+                createMessageFormat(globalConfig.locale)
+              } else if (globalConfig.po.usePluralFromPo !== true) {
+                require([localeEmitter.replace('{{locale}}', globalConfig.locale)], function (locale) {
+                  createMessageFormat(locale)
+                });
+              } else {
+                // check for inlined localization plural forms
+                var localeFunc;
+                if (xhr.responseText.search('Plural-Forms:') !== -1) {
+                  localeFunc = parseOutLocale(xhr.responseText);
+                }
+
+                var locale = eval(localeFunc);
+                createMessageFormat(locale)
+              }
+            }
+          }
         };
+        xhr.send(null);
+      };
     //>>excludeEnd('excludePo')
     }
     return text;
