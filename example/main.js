@@ -8,7 +8,7 @@ require.config({
     },
     po: {
       // avoid loading the locale.js
-      usePluralFromPo: true,
+      useMessageformatPlurals: true,
       i18nLocation: 'i18n'
     }
 });
