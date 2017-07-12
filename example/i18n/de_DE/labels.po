@@ -30,8 +30,8 @@ msgstr "Sie hat {count} Äpfel"
 msgid "There are {mails} mails in {folders} folders"
 msgstr "Es befinden sich {mails} Mails in {folders} Verzeichnissen"
 
-msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
-msgstr "{items, plural, none{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}}"
+msgid "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}}"
+msgstr "{items, plural, =0{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}}"
 
-msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
-msgstr "{items, plural, none{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}} in {rooms, plural, one{einem Raum} other{{rooms} Räumen}}"
+msgid "{items, plural, =0{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
+msgstr "{items, plural, =0{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}} in {rooms, plural, one{einem Raum} other{{rooms} Räumen}}"

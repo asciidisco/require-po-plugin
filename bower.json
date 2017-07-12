@@ -20,7 +20,7 @@
     "tests"
   ],
   "dependencies": {
-    "messageformat": "0.3.1"
+    "messageformat": "1.0.2"
   },
   "devDependencies": {
     "requirejs": "2.1.15"
