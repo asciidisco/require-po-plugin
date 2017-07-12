@@ -1,6 +1,6 @@
 {
   "name": "require-po-plugin",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "PO file reader & converter for require.js",
   "main": "Gruntfile.js",
   "directories": {
