@@ -28,7 +28,7 @@ msgid "There are {mails} mails in {folders} folders"
 msgstr "There are {mails} mails in {folders} folders"
 
 msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
-msgstr "{items, plural, none{Keine Geräte gefunden} one{Ein Gerät gefunden} other{{items} Geräte gefunden}}"
+msgstr "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}}"
 
 msgid "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
 msgstr "{items, plural, none{No devices found} one{found 1 device} other{found {items} devices}} in {rooms, plural, one{one room} other{{rooms} rooms}}"
